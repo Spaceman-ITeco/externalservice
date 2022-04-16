@@ -41,10 +41,16 @@ public class ExternalServiceImpl implements ExternalService{
     }
 
 
-
    @CacheResult
-    public ExternalInfo getExternalInfo(Integer id){
-                  return externalInfoData.get(id);
-              }
+    public ExternalInfo getExternalInfo(Integer id) {
+       ExternalInfo externalInfo = externalInfoData.get(id);
+       if (externalInfo==null)
+       try {
+               throw new RuntimeException(id + " In Map not found!");
+       } catch (NullPointerException exception) {
+           System.out.println(id + " In Map not found!");
+       }
+       return externalInfoData.get(id);
+   }
 
 }

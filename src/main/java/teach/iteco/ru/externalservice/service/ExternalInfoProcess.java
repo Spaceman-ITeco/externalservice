@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import teach.iteco.ru.externalservice.model.ExternalInfo;
+import teach.iteco.ru.externalservice.model.annotation.CheckRequest;
 
 @Component
 @Lazy
@@ -16,10 +17,15 @@ public class ExternalInfoProcess implements Process{
 public ExternalInfoProcess() {}
 
     @Override
+    @CheckRequest
     public boolean run(ExternalInfo externalInfo) {
-        if (id.equals(externalInfo.getId())) {
-            log.info("Process not need: {}", externalInfo);
-            return false;
+        {
+          try {
+                if (id.equals(externalInfo.getId()))
+                {  log.info("Process not need: {}", externalInfo);
+             throw new ProcessException("ExternalInfo.getId == " + externalInfo.getId()  + " not-process",externalInfo.getId());}
+          } catch (ProcessException exception)
+          {System.out.println("ExternalInfo.getId == "+ externalInfo.getId() + " not-process");}
         }
         log.info("Process with: {}", externalInfo);
         return true;

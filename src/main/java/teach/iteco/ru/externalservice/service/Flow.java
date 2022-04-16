@@ -8,6 +8,11 @@ import teach.iteco.ru.externalservice.model.ExternalInfo;
 @Slf4j
 public class Flow {
 
+
+    public ExternalService getExternalService() {
+        return externalService;
+    }
+
     private final ExternalService externalService;
     private final Process process;
 
@@ -23,5 +28,7 @@ public class Flow {
         } else {
             log.info("Not run process: {}", externalInfo);
         }
+
+
     }
 }
