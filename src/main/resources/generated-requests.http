@@ -1,0 +1,56 @@
+###1
+POST http://localhost:8090/rest/bank-book
+Content-Type: application/json
+
+{
+  "userId": "2",
+  "number": "num1",
+  "amount": "3500",
+  "currency": "USD"
+}
+
+###2
+GET http://localhost:8090/rest/bank-book/9
+
+###3
+GET http://localhost:8090/rest/bank-book/by-user-id/2
+
+###4
+DELETE http://localhost:8090/rest/bank-book/4
+
+###5
+DELETE http://localhost:8090/rest/bank-book/by-user-id/2
+
+###6
+PUT http://localhost:8090/rest/bank-book
+Content-Type: application/json
+
+{
+  "id": 3,
+  "userId": "5",
+  "number": "num1",
+  "amount": "1350",
+  "currency": "EUR"
+}
+
+###
+POST http://localhost:8090/rest/user
+Content-Type: application/json
+
+{
+  "id": 2,
+  "name": "Igor",
+  "email": "mail@mail.org"
+}
+
+
+###
+PUT http://localhost:8090/rest/user
+Content-Type: application/json
+
+{ "id": "1",
+  "name": "Roman",
+  "email": "mail@mail.org"
+}
+
+
