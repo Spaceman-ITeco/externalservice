@@ -3,7 +3,6 @@ package teach.iteco.ru.externalservice.service;
 import teach.iteco.ru.externalservice.model.BankBookDto;
 
 import java.util.List;
-import java.util.Set;
 
 public interface BankBookService {
     BankBookDto findById(Integer id);

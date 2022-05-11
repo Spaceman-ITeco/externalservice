@@ -3,15 +3,17 @@ package teach.iteco.ru.externalservice.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import teach.iteco.ru.externalservice.model.BankBookDto;
 import teach.iteco.ru.externalservice.service.BankBookService;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Slf4j
+@Validated
 @RestController
 @RequestMapping("/rest/bank-book")
 public class BankBookController {
@@ -34,14 +36,14 @@ public class BankBookController {
     }
 
     @PostMapping
-    public ResponseEntity<BankBookDto> createBankBook(@RequestBody BankBookDto bankBookDto) {
+    public ResponseEntity<BankBookDto> createBankBook(@Valid @RequestBody BankBookDto bankBookDto) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(bankBookService.create(bankBookDto));
     }
 
     @PutMapping
-    public BankBookDto updateBankBook(@RequestBody BankBookDto bankBookDto) {
+    public BankBookDto updateBankBook(@Valid @RequestBody BankBookDto bankBookDto) {
         return bankBookService.update(bankBookDto);
     }
 

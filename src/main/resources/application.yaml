@@ -3,3 +3,9 @@ server:
 spring:
   thymeleaf:
     prefix: classpath:/view/
+  datasource:
+    url: jdbc:postgresql://localhost:5433/account
+    username: account
+    password: password
+  jpa:
+    show-sql: true
