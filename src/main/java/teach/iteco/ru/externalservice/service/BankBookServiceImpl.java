@@ -13,9 +13,10 @@ import teach.iteco.ru.externalservice.model.exception.BankBookWithCurrencyAlread
 import teach.iteco.ru.externalservice.repository.BankBookRepository;
 import teach.iteco.ru.externalservice.repository.CurrencyRepository;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
 
 @Component
 @Slf4j
@@ -31,8 +32,8 @@ public class BankBookServiceImpl implements BankBookService{
         this.currencyRepository = currencyRepository;
         this.bankBookMapper = bankBookMapper;
     }
-    private final Map<Integer, BankBookDto> bankBookDtoMap = new HashMap<>();
-    private final AtomicInteger sequenceId = new AtomicInteger(1);
+//    private final Map<Integer, BankBookDto> bankBookDtoMap = new HashMap<>();
+//    private final AtomicInteger sequenceId = new AtomicInteger(1);
 
     @Override
     public BankBookDto findById(Integer id) {
@@ -101,14 +102,19 @@ public class BankBookServiceImpl implements BankBookService{
     @Override
     public void deleteByUserId(Integer userId) {
 
-        if (bankBookRepository.findAllByUserId(userId).isEmpty())
-        {
+        List<Integer> bankBookRemoveId = bankBookRepository.findAllByUserId(userId).stream()
+                .map(BankBookEntity::getId).collect(Collectors.toList());
+
+        if (bankBookRepository.findAllByUserId(userId).isEmpty()) {
             throw new BankBookNotFoundException("Для данного пользователя нет счетов!");
         }
         else
 
-           bankBookRepository.deleteAllByUserId(userId);
+            for (Integer removeId : bankBookRemoveId) {
+                bankBookRepository.deleteById(removeId);
+            }
     }
+
 
 
 

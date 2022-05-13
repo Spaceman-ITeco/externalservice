@@ -3,8 +3,8 @@ POST http://localhost:8090/rest/bank-book
 Content-Type: application/json
 
 {
-  "userId": "7",
-  "number": "num",
+  "userId": "8",
+  "number": "num11",
   "amount": "4000",
   "currency": "RUB"
 }
@@ -13,13 +13,13 @@ Content-Type: application/json
 GET http://localhost:8090/rest/bank-book/4
 
 ###3
-GET http://localhost:8090/rest/bank-book/by-user-id/7
+GET http://localhost:8090/rest/bank-book/by-user-id/8
 
 ###4
 DELETE http://localhost:8090/rest/bank-book/4
 
 ###5
-DELETE http://localhost:8090/rest/bank-book/by-user-id/1
+DELETE http://localhost:8090/rest/bank-book/by-user-id/7
 
 ###6
 PUT http://localhost:8090/rest/bank-book
@@ -38,9 +38,9 @@ POST http://localhost:8090/rest/user
 Content-Type: application/json
 
 {
-  "id": "6",
-  "name": "Roma",
-  "email": "roma@mail.org"
+  "id": "9",
+  "name": "Romario",
+  "email": "romario@mail.org"
 }
 
 
