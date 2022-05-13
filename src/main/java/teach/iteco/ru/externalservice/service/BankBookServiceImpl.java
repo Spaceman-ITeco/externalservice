@@ -13,10 +13,7 @@ import teach.iteco.ru.externalservice.model.exception.BankBookWithCurrencyAlread
 import teach.iteco.ru.externalservice.repository.BankBookRepository;
 import teach.iteco.ru.externalservice.repository.CurrencyRepository;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -37,38 +34,23 @@ public class BankBookServiceImpl implements BankBookService{
     private final Map<Integer, BankBookDto> bankBookDtoMap = new HashMap<>();
     private final AtomicInteger sequenceId = new AtomicInteger(1);
 
-    /*@PostConstruct
-    void init() {
-        bankBookDtoMap.put(1, BankBookDto.builder()
-                .id(1)
-                .userId(1)
-                .number("num1")
-                .amount(BigDecimal.TEN)
-                .currency("RUB")
-                .build()
-        );
-    }*/
-
     @Override
     public BankBookDto findById(Integer id) {
-        BankBookDto bankBookDto = bankBookDtoMap.get(id);
-        if (bankBookDto == null) {
-            throw new BankBookNotFoundException("Cчет не найден!");
-        }
-        return bankBookDto;
+        return bankBookRepository.findById(id)
+                .map(bankBookMapper::mapToDto)
+                .orElseThrow(() -> new BankBookNotFoundException("Cчет не найден!"));
     }
 
     @Override
     public List<BankBookDto> findByUserId(Integer userId) {
 
-        List<BankBookDto> bankBookDtos = bankBookDtoMap.values().stream()
-                .filter(bankBookDto -> userId.equals(bankBookDto.getUserId()))
+        List<BankBookDto> bankBookDtos = bankBookRepository.findAllByUserId(userId).stream()
+                .map(bankBookMapper::mapToDto)
                 .collect(Collectors.toList());
         if (CollectionUtils.isEmpty(bankBookDtos)) {
             throw new BankBookNotFoundException("Для данного пользователя нет счетов");
         }
-
-        return  bankBookDtos;
+        return bankBookDtos;
     }
 
     @Override
@@ -91,42 +73,41 @@ public class BankBookServiceImpl implements BankBookService{
 
     @Override
     public BankBookDto update(BankBookDto bankBookDto) {
-        BankBookDto bankBookDtoFromMap = bankBookDtoMap.get(bankBookDto.getId());
-        if (bankBookDtoFromMap == null) {
-            throw new BankBookNotFoundException("Лицевой счет не найден!");
-        }
-        if (!bankBookDtoFromMap.getNumber().equals(bankBookDto.getNumber())) {
+        BankBookEntity bankBookEntity = bankBookRepository.findById(bankBookDto.getId())
+                .orElseThrow(() -> new BankBookNotFoundException("Лицевой счет не найден!"));
+
+        if (!bankBookEntity.getNumber().equals(bankBookDto.getNumber())) {
             throw new BankBookNumberCannotBeModifiedException("Номер лицевого счета менять нельзя!");
         }
-        bankBookDtoMap.put(bankBookDto.getId(), bankBookDto);
-        return bankBookDto;
+
+        CurrencyEntity currency = currencyRepository.findByName(bankBookDto.getCurrency());
+
+        bankBookEntity = bankBookMapper.mapToEntity(bankBookDto);
+        bankBookEntity.setCurrency(currency);
+        return bankBookMapper.mapToDto(
+                bankBookRepository.save(bankBookEntity)
+        );
     }
 
     @Override
     public void delete(Integer id) {
-        BankBookDto bankBookDto = bankBookDtoMap.get(id);
-        if (bankBookDto == null) {
+         if (!bankBookRepository.existsById(id)) {
             throw new BankBookNotFoundException("Cчет не найден!");
         }
-        bankBookDtoMap.remove(id);
+        bankBookRepository.deleteById(id);
 
     }
 
     @Override
     public void deleteByUserId(Integer userId) {
 
-            List<Integer> bankBookRemoveId = bankBookDtoMap.values().stream()
-                    .filter(bankBookDto -> bankBookDto.getUserId().equals(userId))
-                    .map(BankBookDto::getId)
-                    .collect(Collectors.toList());
-            if (bankBookRemoveId.isEmpty())
-            {
-                throw new BankBookNotFoundException("Для данного пользователя нет счетов!");
-            }
+        if (bankBookRepository.findAllByUserId(userId).isEmpty())
+        {
+            throw new BankBookNotFoundException("Для данного пользователя нет счетов!");
+        }
+        else
 
-            for (Integer removeId : bankBookRemoveId) {
-                bankBookDtoMap.remove(removeId);
-            }
+           bankBookRepository.deleteAllByUserId(userId);
     }
 
 
