@@ -3,24 +3,41 @@ package teach.iteco.ru.externalservice.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import teach.iteco.ru.externalservice.mapper.BankBookMapper;
 import teach.iteco.ru.externalservice.model.BankBookDto;
+import teach.iteco.ru.externalservice.model.entity.BankBookEntity;
+import teach.iteco.ru.externalservice.model.entity.CurrencyEntity;
 import teach.iteco.ru.externalservice.model.exception.BankBookNotFoundException;
 import teach.iteco.ru.externalservice.model.exception.BankBookNumberCannotBeModifiedException;
 import teach.iteco.ru.externalservice.model.exception.BankBookWithCurrencyAlreadyHaveException;
+import teach.iteco.ru.externalservice.repository.BankBookRepository;
+import teach.iteco.ru.externalservice.repository.CurrencyRepository;
 
-import javax.annotation.PostConstruct;
-import java.math.BigDecimal;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Component
 @Slf4j
 public class BankBookServiceImpl implements BankBookService{
+
+    private final BankBookRepository bankBookRepository;
+    private final CurrencyRepository currencyRepository;
+    private final BankBookMapper bankBookMapper;
+
+    public BankBookServiceImpl(BankBookRepository bankBookRepository, CurrencyRepository currencyRepository,
+                               BankBookMapper bankBookMapper) {
+        this.bankBookRepository = bankBookRepository;
+        this.currencyRepository = currencyRepository;
+        this.bankBookMapper = bankBookMapper;
+    }
     private final Map<Integer, BankBookDto> bankBookDtoMap = new HashMap<>();
     private final AtomicInteger sequenceId = new AtomicInteger(1);
 
-    @PostConstruct
+    /*@PostConstruct
     void init() {
         bankBookDtoMap.put(1, BankBookDto.builder()
                 .id(1)
@@ -30,7 +47,7 @@ public class BankBookServiceImpl implements BankBookService{
                 .currency("RUB")
                 .build()
         );
-    }
+    }*/
 
     @Override
     public BankBookDto findById(Integer id) {
@@ -56,17 +73,20 @@ public class BankBookServiceImpl implements BankBookService{
 
     @Override
     public BankBookDto create(BankBookDto bankBookDto) {
-        boolean hasBankBook = bankBookDtoMap.values().stream()
-                .anyMatch(bankBook -> bankBook.getUserId().equals(bankBookDto.getUserId())
-                        && bankBook.getNumber().equals(bankBookDto.getNumber())
-                        && bankBook.getCurrency().equals(bankBookDto.getCurrency()));
-        if (hasBankBook) {
+        CurrencyEntity currency = currencyRepository.findByName(bankBookDto.getCurrency());
+        Optional<BankBookEntity> bankBookEntityOpt = bankBookRepository.findByUserIdAndNumberAndCurrency(
+                bankBookDto.getUserId(),
+                bankBookDto.getNumber(),
+                currency
+        );
+        if (bankBookEntityOpt.isPresent()) {
             throw new BankBookWithCurrencyAlreadyHaveException("Счет с данной валютой уже имеется!");
         }
-        int id = sequenceId.getAndIncrement();
-        bankBookDto.setId(id);
-        bankBookDtoMap.put(id, bankBookDto);
-        return bankBookDto;
+        BankBookEntity bankBookEntity = bankBookMapper.mapToEntity(bankBookDto);
+        bankBookEntity.setCurrency(currency);
+        return bankBookMapper.mapToDto(
+                bankBookRepository.save(bankBookEntity)
+        );
     }
 
     @Override

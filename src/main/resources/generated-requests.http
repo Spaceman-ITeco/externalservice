@@ -4,9 +4,9 @@ Content-Type: application/json
 
 {
   "userId": "4",
-  "number": "num2",
+  "number": "num3",
   "amount": "3500",
-  "currency": "EUR"
+  "currency": "USD"
 }
 
 ###2

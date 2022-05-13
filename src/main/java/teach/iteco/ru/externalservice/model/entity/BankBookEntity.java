@@ -28,8 +28,9 @@ public class BankBookEntity {
     @Column(name = "amount", nullable = false)
     private BigDecimal amount;
 
-    @Column(name = "currency", nullable = false)
-    private String currency;
+    @ManyToOne
+    @JoinColumn(name = "currency")
+    private CurrencyEntity currency;
 
     @ToString.Exclude
     @ManyToOne
